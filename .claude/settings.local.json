@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices:*)",
+      "Bash(adb shell:*)",
+      "Bash(grep -v \"^$\")",
+      "Bash(xargs -I{} adb shell \"grep -l -i 'therm\\\\|温控\\\\|temp.*control\\\\|power_save\\\\|thermal' '{}' 2>/dev/null\")",
+      "Bash(adb kill-server:*)",
+      "Bash(adb start-server:*)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(adb push:*)",
+      "Bash(chmod +x:*)",
+      "Bash(git --version)",
+      "Bash(brew install:*)"
+    ]
+  }
+}

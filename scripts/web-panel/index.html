@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZTE 高级面板</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+
+/* === Header === */
+.top-bar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.top-bar .logo { font-size: 18px; font-weight: 700; color: #333; }
+.top-bar .logo span { color: #4CAF50; }
+.top-bar .actions { display: flex; align-items: center; gap: 10px; }
+.top-bar .status-text { font-size: 12px; color: #999; }
+
+/* === Layout === */
+.container { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+/* === Cards === */
+.card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 12px; overflow: hidden; }
+.card-title { font-size: 13px; font-weight: 600; padding: 8px 14px; background: #f7f7f7; border-bottom: 1px solid #eee; color: #555; display: flex; align-items: center; gap: 6px; }
+.card-body { padding: 0; }
+
+/* === Tables === */
+.info-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+.info-table th, .info-table td { padding: 7px 14px; border-bottom: 1px solid #f0f0f0; }
+.info-table th { text-align: left; color: #888; font-weight: 400; width: 35%; white-space: nowrap; }
+.info-table td { text-align: right; color: #222; font-weight: 500; word-break: break-all; }
+.info-table tr:last-child th, .info-table tr:last-child td { border-bottom: none; }
+.info-table .subtitle-row th { background: #f7f7f7; color: #4CAF50; font-weight: 600; text-align: center; padding: 6px; font-size: 12px; }
+
+/* === Signal Grid === */
+.signal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; padding: 10px 14px; }
+.signal-card { background: #f8faff; border: 1px solid #e8edf5; border-radius: 6px; padding: 8px 10px; }
+.signal-card .band-name { font-size: 13px; font-weight: 700; color: #1a73e8; margin-bottom: 4px; }
+.signal-card table { width: 100%; font-size: 11px; border-collapse: collapse; }
+.signal-card th { color: #888; font-weight: 400; text-align: left; padding: 2px 0; width: 50%; }
+.signal-card td { text-align: right; color: #333; font-weight: 500; padding: 2px 0; }
+.signal-label { font-size: 12px; font-weight: 600; color: #555; padding: 10px 14px 4px; }
+
+/* === Buttons === */
+.btn { display: inline-block; padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-primary { background: #4CAF50; color: #fff; }
+.btn-primary:hover { background: #43a047; }
+.btn-blue { background: #1a73e8; color: #fff; }
+.btn-blue:hover { background: #1565c0; }
+.btn-outline { background: #fff; color: #333; border: 1px solid #ddd; }
+.btn-outline:hover { background: #f5f5f5; border-color: #ccc; }
+
+/* === Band Lock Buttons === */
+.band-btns { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 14px; }
+.band-btn { padding: 5px 10px; background: #fff; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 12px; color: #555; font-weight: 500; transition: all 0.15s; }
+.band-btn:hover { background: #e8f5e9; border-color: #4CAF50; color: #2e7d32; }
+.band-btn.active { background: #4CAF50; color: #fff; border-color: #4CAF50; }
+
+/* === Bearer buttons === */
+.bearer-btns { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; }
+.bearer-btn { padding: 6px 14px; background: #fff; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; color: #555; transition: all 0.15s; }
+.bearer-btn:hover { border-color: #4CAF50; color: #2e7d32; }
+.bearer-btn.active { background: #4CAF50; color: #fff; border-color: #4CAF50; }
+
+/* === Action buttons group === */
+.action-btns { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; }
+
+/* === Login === */
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 80vh; }
+.login-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 40px 32px; width: 100%; max-width: 380px; text-align: center; }
+.login-card h2 { font-size: 20px; margin-bottom: 6px; color: #333; }
+.login-card .sub { font-size: 13px; color: #999; margin-bottom: 24px; }
+.login-card input[type=password] { width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; outline: none; transition: border-color 0.2s; background: #fafafa; }
+.login-card input[type=password]:focus { border-color: #4CAF50; background: #fff; }
+.login-card .error { color: #e53935; font-size: 13px; margin-top: 8px; min-height: 20px; }
+
+/* === Info Window (popup) === */
+.info-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.info-box { background: #fff; border-radius: 10px; padding: 20px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+.info-box .info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.info-box .info-header h3 { font-size: 16px; color: #333; }
+.info-box .close-btn { border: none; background: transparent; font-size: 22px; cursor: pointer; color: #999; padding: 4px 8px; border-radius: 4px; }
+.info-box .close-btn:hover { background: #f5f5f5; color: #333; }
+.info-section { margin-top: 10px; border: 1px solid #eee; border-radius: 6px; overflow: hidden; }
+.info-section .section-title { font-weight: 600; font-size: 13px; padding: 6px 12px; background: #f7f7f7; border-bottom: 1px solid #eee; text-align: center; color: #555; }
+.info-section table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.info-section th, .info-section td { padding: 5px 12px; border-bottom: 1px solid #f0f0f0; }
+.info-section th { text-align: left; color: #888; font-weight: 400; width: 40%; }
+.info-section td { text-align: right; color: #222; }
+
+/* === Feedback overlay === */
+.feedback { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 60px; font-weight: 700; z-index: 1000; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+.feedback.show { opacity: 1; }
+.feedback.ok { color: #4CAF50; }
+.feedback.fail { color: #e53935; }
+
+/* === Log === */
+.log-box { max-height: 160px; overflow-y: auto; padding: 8px 14px; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 11px; background: #fafafa; }
+.log-line { margin: 1px 0; }
+.log-error { color: #e53935; }
+.log-ok { color: #2e7d32; }
+.log-info { color: #1a73e8; }
+
+/* === Toggle switch === */
+.toggle-wrap input:checked + span { background: #4CAF50; }
+.toggle-wrap input:checked ~ span:last-child { transform: translateX(20px); }
+
+/* === Grid layout for two-column sections === */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* === Inline input rows === */
+.inline-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.inline-input { padding: 6px 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; outline: none; width: 90px; background: #fafafa; transition: border-color 0.2s; }
+.inline-input:focus { border-color: #4CAF50; background: #fff; }
+.inline-group-label { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; }
+.wifi-grid { display: flex; flex-direction: column; gap: 12px; }
+.wifi-field label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
+
+/* === Mobile === */
+@media (max-width: 640px) {
+  .container { padding: 8px; }
+  .top-bar { padding: 10px 12px; }
+  .top-bar .logo { font-size: 16px; }
+  .two-col { grid-template-columns: 1fr; }
+  .signal-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; padding: 8px 10px; }
+  .band-btns, .bearer-btns, .action-btns { padding: 8px 10px; }
+  .band-btn { padding: 6px 8px; font-size: 11px; }
+  .info-table th, .info-table td { padding: 5px 8px; font-size: 12px; }
+  .info-table th { width: 30%; }
+  .card-title { font-size: 12px; padding: 7px 10px; }
+  .login-card { padding: 28px 20px; margin: 0 12px; }
+  .inline-input { width: 70px; font-size: 12px; padding: 5px 8px; }
+  .inline-row { gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="logo"><span>ZTE</span> 高级面板</div>
+  <div class="actions">
+    <span class="status-text" id="refreshInfo"></span>
+    <button class="btn btn-sm btn-outline" onclick="refreshAll()">⟳ 刷新</button>
+    <button class="btn btn-sm btn-outline" onclick="logout()">登出</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Login -->
+  <div id="loginBox" class="login-wrap">
+    <div class="login-card">
+      <h2>ZTE 高级面板</h2>
+      <div class="sub">输入路由器管理密码登录</div>
+      <input type="password" id="password" placeholder="密码" onkeydown="if(event.key==='Enter')doLogin()">
+      <div style="margin-top:14px">
+        <button class="btn btn-primary" onclick="doLogin()" style="width:100%;padding:12px">登 录</button>
+      </div>
+      <div class="error" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- Main Panel -->
+  <div id="mainPanel" style="display:none">
+
+    <!-- Row 1: Network + System -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">📡 网络信息</div>
+        <div class="card-body"><table class="info-table" id="netTable"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">💻 系统状态</div>
+        <div class="card-body"><table class="info-table" id="sysTable"></table></div>
+      </div>
+    </div>
+
+    <!-- Signal -->
+    <div class="card">
+      <div class="card-title">📶 信号详情</div>
+      <div id="signalContainer"></div>
+    </div>
+
+    <!-- Row 2: Traffic + WAN -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">📊 流量统计</div>
+        <div class="card-body"><table class="info-table" id="trafficTable"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🌐 WAN 状态</div>
+        <div class="card-body"><table class="info-table" id="wanTable"></table></div>
+      </div>
+    </div>
+
+    <!-- Bearer Selection -->
+    <div class="card">
+      <div class="card-title">📻 网络制式</div>
+      <div class="bearer-btns">
+        <button class="bearer-btn" id="bearer-WL_AND_5G" onclick="setBearerMode('WL_AND_5G')">自动</button>
+        <button class="bearer-btn" id="bearer-Only_5G" onclick="setBearerMode('Only_5G')">5G SA</button>
+        <button class="bearer-btn" id="bearer-LTE_AND_5G" onclick="setBearerMode('LTE_AND_5G')">5G NSA</button>
+        <button class="bearer-btn" id="bearer-WCDMA_AND_LTE" onclick="setBearerMode('WCDMA_AND_LTE')">4G/3G</button>
+        <button class="bearer-btn" id="bearer-Only_LTE" onclick="setBearerMode('Only_LTE')">仅 4G</button>
+        <button class="bearer-btn" id="bearer-Only_WCDMA" onclick="setBearerMode('Only_WCDMA')">仅 3G</button>
+      </div>
+    </div>
+
+    <!-- 4G Band Lock -->
+    <div class="card">
+      <div class="card-title">🔒 4G 频段锁定 <span id="lte-band-lock-header" style="color:#999;font-weight:400;margin-left:6px"></span></div>
+      <div class="band-btns" id="lteBandBtns"></div>
+    </div>
+
+    <!-- 5G Band Lock -->
+    <div class="card">
+      <div class="card-title">🔒 5G 频段锁定 <span id="nr-band-lock-header" style="color:#999;font-weight:400;margin-left:6px"></span></div>
+      <div class="band-btns" id="nrBandBtns"></div>
+    </div>
+
+    <!-- Cell Lock -->
+    <div class="card">
+      <div class="card-title">📍 小区锁定 <span id="cellLockStatus" style="color:#999;font-weight:400;margin-left:6px"></span></div>
+      <div class="card-body" style="padding:12px 14px">
+        <div class="inline-group-label">5G 小区</div>
+        <div class="inline-row">
+          <input type="text" class="inline-input" id="lock5g-pci" placeholder="PCI">
+          <input type="text" class="inline-input" id="lock5g-arfcn" placeholder="ARFCN">
+          <input type="text" class="inline-input" id="lock5g-band" placeholder="Band">
+          <button class="btn btn-sm btn-blue" onclick="lock5gCell()">锁定</button>
+          <button class="btn btn-sm btn-outline" onclick="unlock5gCellAction()">解锁</button>
+        </div>
+        <div class="inline-group-label" style="margin-top:10px">4G 小区</div>
+        <div class="inline-row">
+          <input type="text" class="inline-input" id="lock4g-pci" placeholder="PCI">
+          <input type="text" class="inline-input" id="lock4g-earfcn" placeholder="EARFCN">
+          <button class="btn btn-sm btn-blue" onclick="lock4gCell()">锁定</button>
+          <button class="btn btn-sm btn-outline" onclick="unlock4gCellAction()">解锁</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WiFi Settings -->
+    <div class="card">
+      <div class="card-title">📶 WiFi 设置</div>
+      <div class="card-body" style="padding:12px 14px">
+        <div class="wifi-grid">
+          <div class="wifi-field">
+            <label>发射功率 (%)</label>
+            <div class="inline-row">
+              <input type="text" class="inline-input" id="wifi-txpower-24" placeholder="2.4G">
+              <input type="text" class="inline-input" id="wifi-txpower-5" placeholder="5G">
+              <button class="btn btn-sm btn-primary" onclick="applyWifiTxPower()">应用</button>
+            </div>
+          </div>
+          <div class="wifi-field">
+            <label>国家码</label>
+            <div class="inline-row">
+              <input type="text" class="inline-input" id="wifi-country-24" placeholder="2.4G" style="max-width:70px">
+              <input type="text" class="inline-input" id="wifi-country-5" placeholder="5G" style="max-width:70px">
+              <button class="btn btn-sm btn-primary" onclick="applyWifiCountry()">应用</button>
+            </div>
+          </div>
+          <div class="wifi-field">
+            <label>最大连接数</label>
+            <div class="inline-row">
+              <input type="text" class="inline-input" id="wifi-maxassoc-24" placeholder="2.4G">
+              <input type="text" class="inline-input" id="wifi-maxassoc-5" placeholder="5G">
+              <button class="btn btn-sm btn-primary" onclick="applyWifiMaxClients()">应用</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WiFi Detail -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">📶 WiFi 2.4G 详情</div>
+        <div class="card-body"><table class="info-table" id="wifi24Table"><tr><th colspan="2" style="text-align:center;color:#999">登录后加载...</th></tr></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📶 WiFi 5G 详情</div>
+        <div class="card-body"><table class="info-table" id="wifi5Table"><tr><th colspan="2" style="text-align:center;color:#999">登录后加载...</th></tr></table></div>
+      </div>
+    </div>
+
+    <!-- Extra Info: HW/SW, SIM, WMS — all inline -->
+    <div class="card">
+      <div class="card-title">🖥️ 硬件 / 软件信息</div>
+      <div class="card-body"><table class="info-table" id="hwswTable"><tr><th colspan="2" style="text-align:center;color:#999">登录后加载...</th></tr></table></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">💳 SIM 卡信息</div>
+        <div class="card-body"><table class="info-table" id="simTable"><tr><th colspan="2" style="text-align:center;color:#999">登录后加载...</th></tr></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📦 WMS 信息</div>
+        <div class="card-body"><table class="info-table" id="wmsTable"><tr><th colspan="2" style="text-align:center;color:#999">登录后加载...</th></tr></table></div>
+      </div>
+    </div>
+
+    <!-- Thermal Control -->
+    <div class="card">
+      <div class="card-title">🌡️ 温控开关</div>
+      <div class="card-body" style="padding:12px 14px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px;color:#555">温控策略</span>
+          <label class="toggle-wrap" style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+            <input type="checkbox" id="thermalSwitch" onchange="toggleThermal()" style="opacity:0;width:0;height:0">
+            <span style="position:absolute;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:.3s"></span>
+            <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+          </label>
+        </div>
+        <div style="font-size:11px;color:#999;margin-top:6px" id="thermalStatus">加载中...</div>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="card">
+      <div class="card-title">📜 操作日志</div>
+      <div class="log-box" id="logBox"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Feedback overlay -->
+<div class="feedback" id="feedback"></div>
+
+<script>
+// ============================================================
+// GLOBALS
+// ============================================================
+const SUPPORTED_4G_BANDS = [1,2,3,4,5,7,8,18,19,20,26,28,29,32,34,38,39,40,41,42,43,48,66,71];
+const FULL_5G_BANDS = ["1","2","3","5","7","8","18","20","26","28","29","38","40","41","48","66","71","75","77","78","79"];
+let sessionId = null;
+let currentNetInfo = null;
+let current4gMask = null;
+let current5gBands = [];
+let refreshTimer = null;
+
+// ============================================================
+// LOGGING
+// ============================================================
+function log(msg, type='info') {
+  const box = document.getElementById('logBox');
+  if (!box) return;
+  const line = document.createElement('div');
+  line.className = 'log-line log-' + type;
+  const t = new Date().toLocaleTimeString();
+  line.textContent = '[' + t + '] ' + msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ============================================================
+// SHA256 (pure JS — works on HTTP without crypto.subtle)
+// ============================================================
+function sha256Hex(str) {
+  function rr(n,x){return(x>>>n)|(x<<(32-n))}
+  function S(x,y){var l=(x&0xFFFF)+(y&0xFFFF),h=(x>>>16)+(y>>>16)+(l>>>16);return(h<<16)|(l&0xFFFF)}
+  function S4(a,b,c,d){var l=(a&0xFFFF)+(b&0xFFFF)+(c&0xFFFF)+(d&0xFFFF),h=(a>>>16)+(b>>>16)+(c>>>16)+(d>>>16)+(l>>>16);return(h<<16)|(l&0xFFFF)}
+  function S5(a,b,c,d,e){var l=(a&0xFFFF)+(b&0xFFFF)+(c&0xFFFF)+(d&0xFFFF)+(e&0xFFFF),h=(a>>>16)+(b>>>16)+(c>>>16)+(d>>>16)+(e>>>16)+(l>>>16);return(h<<16)|(l&0xFFFF)}
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes=new TextEncoder().encode(str);
+  const l=bytes.length*8;
+  const msg=[...bytes,0x80];
+  while(msg.length%64!==56)msg.push(0);
+  for(let i=56;i>=0;i-=8)msg.push((l/(2**i))&0xFF);
+  let[h0,h1,h2,h3,h4,h5,h6,h7]=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  for(let off=0;off<msg.length;off+=64){
+    const w=new Array(64);
+    for(let i=0;i<16;i++)w[i]=(msg[off+i*4]<<24)|(msg[off+i*4+1]<<16)|(msg[off+i*4+2]<<8)|msg[off+i*4+3];
+    for(let i=16;i<64;i++){const s0=rr(7,w[i-15])^rr(18,w[i-15])^(w[i-15]>>>3);const s1=rr(17,w[i-2])^rr(19,w[i-2])^(w[i-2]>>>10);w[i]=S4(w[i-16],s0,w[i-7],s1)}
+    let[a,b,c,d,e,f,g,h]=[h0,h1,h2,h3,h4,h5,h6,h7];
+    for(let i=0;i<64;i++){
+      const S1=rr(6,e)^rr(11,e)^rr(25,e);const ch=(e&f)^((~e)&g);const t1=S5(h,S1,ch,K[i],w[i]);
+      const S0=rr(2,a)^rr(13,a)^rr(22,a);const maj=(a&b)^(a&c)^(b&c);const t2=S(S0,maj);
+      h=g;g=f;f=e;e=S(d,t1);d=c;c=b;b=a;a=S(t1,t2);
+    }
+    h0=S(h0,a);h1=S(h1,b);h2=S(h2,c);h3=S(h3,d);h4=S(h4,e);h5=S(h5,f);h6=S(h6,g);h7=S(h7,h);
+  }
+  return [h0,h1,h2,h3,h4,h5,h6,h7].map(v=>(v>>>0).toString(16).padStart(8,'0')).join('').toUpperCase();
+}
+
+// ============================================================
+// UBUS CALL
+// ============================================================
+async function callUbus(calls) {
+  sessionId = sessionId || sessionStorage.getItem('ct');
+  const isArray = Array.isArray(calls);
+  const callsArray = isArray ? calls : [calls];
+  const req = callsArray.map((c, i) => ({
+    jsonrpc: '2.0', id: i, method: 'call',
+    params: [sessionId || '00000000000000000000000000000000', c.service, c.method, c.params || {}]
+  }));
+  const res = await fetch('/ubus/?t=' + Date.now() + '&t=' + Date.now(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Z-Mode': '1' },
+    body: JSON.stringify(req)
+  }).then(r => r.json());
+  const byId = new Map(res.map(r => [r.id, r]));
+  const results = req.map(rq => {
+    const r = byId.get(rq.id);
+    if (r?.error) return { success: false, id: rq.id, data: null, accessDenied: r.error.code === -32002 };
+    const code = r?.result?.[0];
+    if (code === 0) return { success: true, id: rq.id, data: r.result[1] };
+    return { success: false, id: rq.id, data: null };
+  });
+  return isArray ? results : results[0];
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function doLogin() {
+  const passInput = document.getElementById('password');
+  const pass = passInput.value || localStorage.getItem('zte_panel_pw_hash');
+  if (!pass) return;
+  document.getElementById('loginError').textContent = '';
+  try {
+    sessionId = null;
+    sessionStorage.removeItem('ct');
+    const saltRes = await callUbus({ service: 'zwrt_web', method: 'web_login_info', params: {} });
+    const sault = saltRes?.data?.zte_web_sault;
+    if (!sault) { document.getElementById('loginError').textContent = '获取 salt 失败，请稍后重试'; return false; }
+    // 如果输入框有值，用输入框的密码；否则用缓存的 hash
+    let hash1;
+    if (passInput.value) {
+      hash1 = sha256Hex(passInput.value);
+      localStorage.setItem('zte_panel_pw_hash', hash1);
+    } else {
+      hash1 = pass; // 已经是 hash
+    }
+    const finalHash = sha256Hex(hash1 + sault);
+    const loginRes = await callUbus({ service: 'zwrt_web', method: 'web_login', params: { password: finalHash } });
+    const result = loginRes?.data;
+    if (result?.result === 0 && result?.ubus_rpc_session) {
+      sessionId = result.ubus_rpc_session;
+      sessionStorage.setItem('ct', sessionId);
+      log('登录成功', 'ok');
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('mainPanel').style.display = 'block';
+      setupBandButtons();
+      refreshAll();
+      loadWifiSettings();
+      loadExtraInfo();
+      loadThermalStatus();
+      if (refreshTimer) clearInterval(refreshTimer);
+      refreshTimer = setInterval(refreshAll, 5000);
+      return true;
+    } else {
+      localStorage.removeItem('zte_panel_pw_hash');
+      document.getElementById('loginError').textContent = '密码错误';
+      return false;
+    }
+  } catch(e) {
+    document.getElementById('loginError').textContent = '登录失败: ' + e.message;
+    return false;
+  }
+}
+
+// Silent re-login using cached password hash
+async function silentReLogin() {
+  const cachedHash = localStorage.getItem('zte_panel_pw_hash');
+  if (!cachedHash) return false;
+  try {
+    sessionId = null;
+    sessionStorage.removeItem('ct');
+    const saltRes = await callUbus({ service: 'zwrt_web', method: 'web_login_info', params: {} });
+    const sault = saltRes?.data?.zte_web_sault;
+    if (!sault) return false;
+    const finalHash = sha256Hex(cachedHash + sault);
+    const loginRes = await callUbus({ service: 'zwrt_web', method: 'web_login', params: { password: finalHash } });
+    const result = loginRes?.data;
+    if (result?.result === 0 && result?.ubus_rpc_session) {
+      sessionId = result.ubus_rpc_session;
+      sessionStorage.setItem('ct', sessionId);
+      log('自动重新登录成功', 'ok');
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function logout() {
+  sessionStorage.removeItem('ct');
+  localStorage.removeItem('zte_panel_pw_hash');
+  sessionId = null;
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('mainPanel').style.display = 'none';
+  document.getElementById('loginBox').style.display = '';
+  document.getElementById('password').value = '';
+}
+
+// ============================================================
+// RETRY HELPER
+// ============================================================
+async function runWithRetry(fn) {
+  for (let i = 1; i <= 5; i++) {
+    const res = await fn();
+    const denied = Array.isArray(res) ? res.some(r => r?.accessDenied) : res?.accessDenied;
+    if (!denied) return res;
+    if (i < 5) await new Promise(r => setTimeout(r, 100));
+  }
+  return null;
+}
+
+// ============================================================
+// UI FEEDBACK
+// ============================================================
+function showFeedback(ok) {
+  const el = document.getElementById('feedback');
+  el.textContent = ok ? '✓' : '✗';
+  el.className = 'feedback show ' + (ok ? 'ok' : 'fail');
+  setTimeout(() => { el.className = 'feedback'; }, 1000);
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function fmtSec(s) {
+  if (!s) return '-';
+  s = parseInt(s);
+  const d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60), sec = s%60;
+  return (d?d+'d ':'') + (h?h+'h ':'') + (m?m+'m ':'') + sec+'s';
+}
+function fmtBytes(v) {
+  if (!v) return '-';
+  const u = ['B','KB','MB','GB','TB'];
+  let i = 0; v = Number(v);
+  while (v >= 1024 && i < u.length-1) { v /= 1024; i++; }
+  return v.toFixed(1) + ' ' + u[i];
+}
+function fmtSpeed(v) { return v ? ((Number(v)*8)/1e6).toFixed(2) + ' Mbit/s' : '-'; }
+
+function convert4gEarfcn(earfcn) {
+  const bands = [[1,2110,0,0,599],[2,1930,600,600,1199],[3,1805,1200,1200,1949],[4,2110,1950,1950,2399],[5,869,2400,2400,2649],[7,2620,2750,2750,3449],[8,925,3450,3450,3799],[18,860,5850,5850,5999],[19,875,6000,6000,6149],[20,791,6150,6150,6449],[26,859,8690,8690,9039],[28,758,9210,9210,9659],[29,717,9770,9770,9869],[32,1452,9920,9920,10359],[34,2010,36200,36200,36349],[38,2570,37750,37750,38249],[39,1880,38250,38250,38649],[40,2300,38650,38650,39649],[41,2496,39650,39650,41589],[42,3400,41590,41590,43589],[43,3600,43590,43590,45589],[48,3550,55240,55240,56739],[66,2110,66436,66436,67335],[71,617,68586,68586,68935]];
+  for (const [b,fdl,noff,nmin,nmax] of bands) {
+    if (earfcn >= nmin && earfcn <= nmax) return { band: b, mhz: +(fdl + 0.1 * (earfcn - noff)).toFixed(1) };
+  }
+  return null;
+}
+function convert5gArfcn(arfcn) {
+  function mhz(N) {
+    if (N >= 0 && N <= 599999) return 0.005 * N;
+    if (N >= 600000 && N <= 2016666) return 3000 + 0.015 * (N - 600000);
+    if (N >= 2016667) return 24250 + 0.06 * (N - 2016667);
+    return null;
+  }
+  // N41 before N7: their ARFCN ranges overlap (524000-537999), N41 is more common in practice
+  const nb = [[1,422000,434000],[2,386000,398000],[3,361000,376000],[5,173800,178800],[8,185000,192000],[18,172000,175000],[20,158200,164200],[26,171800,178800],[28,151600,160600],[29,143400,145600],[40,460000,480000],[41,499200,537999],[7,524000,538000],[48,636667,646666],[66,422000,440000],[71,123400,130400],[75,286400,303400],[77,620000,680000],[78,620000,653333],[79,693334,733333]];
+  for (const [b,nmin,nmax] of nb) { if (arfcn >= nmin && arfcn <= nmax) return { band: b, mhz: +mhz(arfcn).toFixed(1) }; }
+  return null;
+}
+
+function parseNr(net) {
+  const cells = [];
+  if (net.nr5g_action_channel) {
+    const f = convert5gArfcn(parseInt(net.nr5g_action_channel));
+    // Prefer modem-reported band (nr5g_action_band) over ARFCN conversion to avoid N7/N41 overlap
+    const modemBand = (net.nr5g_action_band || '').replace(/^n/i, '');
+    const band = modemBand ? parseInt(modemBand) : f?.band;
+    cells.push({ band: band, mhz: f?.mhz, pci: parseInt(net.nr5g_pci), arfcn: parseInt(net.nr5g_action_channel), bw: parseInt(net.nr5g_bandwidth), rsrp: parseFloat(net.nr5g_rsrp), rsrq: parseFloat(net.nr5g_rsrq), snr: parseFloat(net.nr5g_snr), rssi: parseFloat(net.nr5g_rssi) });
+  }
+  if (net.nrca) {
+    net.nrca.split(';').filter(e => e.trim()).forEach(entry => {
+      const p = entry.split(',').map(x => x.trim());
+      if (p.length < 11) return;
+      const f = convert5gArfcn(parseInt(p[4]));
+      cells.push({ band: p[3], mhz: f?.mhz, pci: parseInt(p[1]), arfcn: parseInt(p[4]), bw: parseInt(p[5]), rsrp: parseFloat(p[7]), rsrq: parseFloat(p[8]), snr: parseFloat(p[9]), rssi: parseFloat(p[10]) });
+    });
+  }
+  return cells;
+}
+function parseLte(net) {
+  const cells = [];
+  if (!net.lteca) return cells;
+  net.lteca.split(';').filter(e => e.trim()).forEach((entry, idx) => {
+    const p = entry.split(',').map(x => x.trim());
+    if (p.length < 5) return;
+    const f = convert4gEarfcn(parseInt(p[3]));
+    let rsrp = null, rsrq = null, snr = null, rssi = null;
+    if (idx === 0) { rsrp = parseFloat(net.lte_rsrp); rsrq = parseFloat(net.lte_rsrq); snr = parseFloat(net.lte_snr); rssi = parseFloat(net.lte_rssi); }
+    cells.push({ band: f?.band, mhz: f?.mhz, pci: parseInt(p[0]), earfcn: parseInt(p[3]), bw: parseInt(p[4]), rsrp, rsrq, snr, rssi });
+  });
+  return cells;
+}
+
+// ============================================================
+// REFRESH
+// ============================================================
+async function refreshAll() {
+  document.getElementById('refreshInfo').textContent = '刷新中...';
+  try {
+    const res = await runWithRetry(() => callUbus([
+      { service: 'zte_nwinfo_api', method: 'nwinfo_get_netinfo' },
+      { service: 'zwrt_bsp.thermal', method: 'get_cpu_temp' },
+      { service: 'zwrt_mc.device.manager', method: 'get_device_info' },
+      { service: 'zwrt_router.api', method: 'router_get_status' },
+      { service: 'zwrt_data', method: 'get_wwandst', params: { source_module: 'web', cid: 1, type: 4 } }
+    ]));
+    if (!res) { handleSessionExpired(); return; }
+    if (!Array.isArray(res) || !res.every(r => r?.success)) {
+      // Check if session expired
+      if (Array.isArray(res) && res.some(r => r?.accessDenied)) { handleSessionExpired(); return; }
+      return;
+    }
+    const [net, temp, dev, wan, wanStat] = [res[0].data, res[1].data, res[2].data, res[3].data, res[4].data];
+    currentNetInfo = net;
+    renderAll(net, temp, dev, wan, wanStat);
+    document.getElementById('refreshInfo').textContent = new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('refreshInfo').textContent = '连接中...';
+    log('刷新失败: ' + e.message, 'error');
+  }
+}
+
+async function handleSessionExpired() {
+  log('会话已过期，正在自动重新登录...', 'info');
+  document.getElementById('refreshInfo').textContent = '重新登录中...';
+  const ok = await silentReLogin();
+  if (ok) {
+    refreshAll();
+  } else {
+    // 缓存的密码也失败了，回到登录页
+    if (refreshTimer) clearInterval(refreshTimer);
+    document.getElementById('mainPanel').style.display = 'none';
+    document.getElementById('loginBox').style.display = '';
+    document.getElementById('password').value = '';
+    document.getElementById('loginError').textContent = '会话已过期，请重新登录';
+  }
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderAll(net, temp, dev, wan, wanStat) {
+  const is5g = ['SA','ENDC','LTE-NSA'].includes(net.network_type);
+  const is4g = ['LTE','ENDC','LTE-NSA'].includes(net.network_type);
+  let bands = [], bw = 0;
+  const nrSig = parseNr(net), lteSig = parseLte(net);
+  if (is5g && nrSig) { nrSig.forEach(c => { if(c.band) bands.push('N'+c.band); if(c.bw) bw += c.bw; }); }
+  if (is4g && lteSig) { lteSig.forEach(c => { if(c.band) bands.push('B'+c.band); if(c.bw) bw += c.bw; }); }
+  let connType = net.network_type === 'SA' ? '5G SA' : net.network_type === 'ENDC' ? '5G NSA' : net.network_type || '-';
+  let cellId = '-';
+  if (net.cell_id && is4g) {
+    const id = Number(net.cell_id);
+    cellId = (id>>>8).toString(16).toUpperCase() + ' | ' + (id&0xFF).toString(16).toUpperCase();
+  } else if (net.nr5g_cell_id) {
+    const id = Number(net.nr5g_cell_id);
+    cellId = (id>>>8).toString(16).toUpperCase() + ' | ' + (id&0xFF).toString(16).toUpperCase();
+  }
+
+  // Network
+  document.getElementById('netTable').innerHTML =
+    r('运营商', net.network_provider_fullname || '-') +
+    r('连接', connType) +
+    r('在线', fmtSec(wanStat.real_time)) +
+    r('频段', bands.join(' + ') || '-') +
+    r('带宽', bw ? bw + ' MHz' : '-') +
+    r('Cell ID', '<span style="font-family:monospace">' + cellId + '</span>');
+
+  // Signal
+  let sigHtml = '';
+  if (nrSig && nrSig.length > 0) {
+    sigHtml += '<div class="signal-label">5G NR</div><div class="signal-grid">';
+    nrSig.forEach(c => {
+      sigHtml += '<div class="signal-card"><div class="band-name">N' + (c.band||'?') + '</div><table>' +
+        sr('RSRP', c.rsrp) + sr('RSRQ', c.rsrq) + sr('SINR', c.snr) + sr('RSSI', c.rssi) +
+        sr('PCI', c.pci) + sr('BW', c.bw ? c.bw+' MHz' : '-') +
+        sr('ARFCN', c.arfcn) + sr('Freq', c.mhz ? c.mhz+' MHz' : '-') +
+        '</table></div>';
+    });
+    sigHtml += '</div>';
+  }
+  if (lteSig && lteSig.length > 0) {
+    sigHtml += '<div class="signal-label">LTE</div><div class="signal-grid">';
+    lteSig.forEach(c => {
+      sigHtml += '<div class="signal-card"><div class="band-name" style="color:#e67e22">B' + (c.band||'?') + '</div><table>' +
+        sr('RSRP', c.rsrp) + sr('RSRQ', c.rsrq) + sr('SINR', c.snr) + sr('RSSI', c.rssi) +
+        sr('PCI', c.pci) + sr('BW', c.bw ? c.bw+' MHz' : '-') +
+        sr('EARFCN', c.earfcn) + sr('Freq', c.mhz ? c.mhz+' MHz' : '-') +
+        '</table></div>';
+    });
+    sigHtml += '</div>';
+  }
+  document.getElementById('signalContainer').innerHTML = sigHtml || '<div style="padding:14px;color:#999;font-size:13px">无信号数据</div>';
+
+  // Traffic
+  const ts = wanStat;
+  document.getElementById('trafficTable').innerHTML =
+    rs('实时') +
+    r('↓ 速度', fmtSpeed(ts.real_rx_speed)) + r('↑ 速度', fmtSpeed(ts.real_tx_speed)) +
+    r('↓ 流量', fmtBytes(ts.real_rx_bytes)) + r('↑ 流量', fmtBytes(ts.real_tx_bytes)) +
+    rs('本月') +
+    r('时间', fmtSec(ts.month_time)) + r('↓ 流量', fmtBytes(ts.month_rx_bytes)) + r('↑ 流量', fmtBytes(ts.month_tx_bytes)) +
+    rs('总计') +
+    r('时间', fmtSec(ts.total_time)) + r('↓ 流量', fmtBytes(ts.total_rx_bytes)) + r('↑ 流量', fmtBytes(ts.total_tx_bytes));
+
+  // WAN
+  const dns4 = [wan.mwan_wanlan1_prefer_dns_auto, wan.mwan_wanlan1_standby_dns_auto].filter(Boolean).join(', ');
+  const dns6 = [wan.mwan_wanlan1_ipv6_prefer_dns_auto, wan.mwan_wanlan1_ipv6_standby_dns_auto].filter(Boolean).join(', ');
+  document.getElementById('wanTable').innerHTML =
+    r('模式', wan.mwan_wanlan1_link_mode || '-') + r('状态', wan.mwan_wanlan1_status || '-') +
+    r('IPv4', wan.mwan_wanlan1_wan_ipaddr || '-') + r('网关', wan.mwan_wanlan1_wan_gateway || '-') +
+    r('DNS', dns4 || '-') +
+    r('IPv6', wan.mwan_wanlan1_ipv6_wan_ipaddr || '-') + r('IPv6 网关', wan.mwan_wanlan1_ipv6_wan_gateway || '-') +
+    r('IPv6 DNS', dns6 || '-');
+
+  // System
+  let cpuRows = '';
+  if (dev?.cpuinfo) {
+    dev.cpuinfo.filter(c => c.name !== 'all').forEach(c => {
+      cpuRows += r('CPU ' + c.name, Math.round(100 - parseFloat(c.idle || 0)) + '%');
+    });
+  }
+  const memTotal = parseInt(dev?.meminfo?.total || 0), memAvail = parseInt(dev?.meminfo?.avaliable || 0);
+  const memUsed = memTotal - memAvail, memPct = memTotal > 0 ? Math.round((memUsed / memTotal) * 100) : 0;
+  document.getElementById('sysTable').innerHTML =
+    r('CPU 温度', (temp?.cpuss_temp ?? '-') + '°C') + cpuRows +
+    r('内存', (memUsed/1024).toFixed(0) + '/' + (memTotal/1024).toFixed(0) + 'MB (' + memPct + '%)') +
+    r('运行时间', fmtSec(dev?.device_uptime));
+
+  // Bearer highlight
+  highlightBearer(net.net_select);
+
+  // Band lock
+  if (net.lte_band_lock) {
+    const mask = BigInt(net.lte_band_lock); current4gMask = mask;
+    const active = []; for (let b = 1; b <= 44; b++) { if ((mask & (1n << BigInt(b-1))) !== 0n) active.push(b); }
+    document.getElementById('lte-band-lock-header').textContent = active.length ? '(' + active.join(', ') + ')' : '(自动)';
+  }
+  if (net.nr5g_sa_band_lock) {
+    current5gBands = net.nr5g_sa_band_lock.split(',').map(b => b.trim());
+    document.getElementById('nr-band-lock-header').textContent = current5gBands.length ? '(' + current5gBands.join(', ') + ')' : '(自动)';
+  }
+
+  // Cell lock inputs — fill with current values
+  const i5p = document.getElementById('lock5g-pci'), i5a = document.getElementById('lock5g-arfcn'), i5b = document.getElementById('lock5g-band');
+  if (i5p && !i5p.matches(':focus')) i5p.value = net.nr5g_pci || '';
+  if (i5a && !i5a.matches(':focus')) i5a.value = net.nr5g_action_channel || '';
+  if (i5b && !i5b.matches(':focus')) i5b.value = (net.nr5g_action_band||'').replace(/^n/i,'');
+  const i4p = document.getElementById('lock4g-pci'), i4a = document.getElementById('lock4g-earfcn');
+  if (i4p && !i4p.matches(':focus')) i4p.value = net.lte_pci || '';
+  if (i4a && !i4a.matches(':focus')) i4a.value = net.lte_action_channel || '';
+
+  // Cell lock status
+  const parts = [];
+  if (net.lock_nr_cell && net.lock_nr_cell !== '0,0,0') parts.push('5G: ' + net.lock_nr_cell);
+  if (net.lock_lte_cell && net.lock_lte_cell !== '0,0') parts.push('4G: ' + net.lock_lte_cell);
+  document.getElementById('cellLockStatus').textContent = parts.length ? '(' + parts.join(' | ') + ')' : '';
+}
+
+// Table row helpers
+function r(k, v) { return '<tr><th>' + k + '</th><td>' + (v ?? '-') + '</td></tr>'; }
+function sr(k, v) { return '<tr><th>' + k + '</th><td>' + (v ?? '-') + '</td></tr>'; }
+function rs(title) { return '<tr><th colspan="2" class="subtitle-row">' + title + '</th></tr>'; }
+
+// ============================================================
+// BEARER
+// ============================================================
+function highlightBearer(current) {
+  ['WL_AND_5G','Only_5G','LTE_AND_5G','WCDMA_AND_LTE','Only_LTE','Only_WCDMA'].forEach(m => {
+    const btn = document.getElementById('bearer-' + m);
+    if (btn) btn.className = 'bearer-btn' + (m === current ? ' active' : '');
+  });
+}
+async function setBearerMode(mode) {
+  log('切换制式: ' + mode + ' ...', 'info');
+  try {
+    const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_set_netselect', params: { net_select: mode } }));
+    if (res?.success) {
+      log('制式已切换: ' + mode, 'ok');
+      showFeedback(true);
+      // 制式切换会导致网络短暂断开，延迟刷新
+      setTimeout(refreshAll, 3000);
+    } else {
+      log('制式切换失败', 'error');
+      showFeedback(false);
+    }
+  } catch(e) {
+    log('制式切换异常: ' + e.message + '（网络重连中...）', 'info');
+    // 网络断开导致 fetch 失败是正常的，等待重连后刷新
+    setTimeout(refreshAll, 5000);
+  }
+}
+
+// ============================================================
+// BAND LOCK
+// ============================================================
+function setupBandButtons() {
+  // 4G
+  const lteDiv = document.getElementById('lteBandBtns');
+  lteDiv.innerHTML = '';
+  const ab = (txt, fn) => { const b = document.createElement('button'); b.className = 'band-btn'; b.textContent = txt; b.onclick = fn; lteDiv.appendChild(b); };
+  ab('自动', () => set4gMask(0n));
+  SUPPORTED_4G_BANDS.forEach(b => ab('B'+b, () => set4gMask(1n << BigInt(b-1))));
+  ab('B1+3', () => set4gMask((1n<<0n)|(1n<<2n)));
+  ab('B1+3+7', () => set4gMask((1n<<0n)|(1n<<2n)|(1n<<6n)));
+  ab('手动', () => { const inp = prompt('输入频段 (如 1+3+20):'); if (!inp) return; const mask = inp.split(/[+,]/).map(t=>t.trim()).filter(t=>/^\d+$/.test(t)).reduce((m,b)=>m|(1n<<BigInt(parseInt(b)-1)),0n); set4gMask(mask); });
+  // 5G
+  const nrDiv = document.getElementById('nrBandBtns');
+  nrDiv.innerHTML = '';
+  const nb = (txt, fn) => { const b = document.createElement('button'); b.className = 'band-btn'; b.textContent = txt; b.onclick = fn; nrDiv.appendChild(b); };
+  nb('自动', () => set5gBands([]));
+  FULL_5G_BANDS.forEach(b => nb('N'+b, () => set5gBands([b])));
+  nb('全部', () => set5gBands([...FULL_5G_BANDS]));
+  nb('手动', () => { const inp = prompt('输入频段 (如 1,3,78):'); if (!inp) return; set5gBands(inp.split(',').map(t=>t.trim()).filter(t=>/^\d+$/.test(t))); });
+}
+
+async function set4gMask(mask) {
+  const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_set_gwl_bandlock', params: { is_gw_band: '0', gw_band_mask: '0', is_lte_band: '1', lte_band_mask: mask.toString() } }));
+  if (res?.success) { log('4G 频段已设置', 'ok'); showFeedback(true); refreshAll(); }
+  else { log('4G 频段设置失败', 'error'); showFeedback(false); }
+}
+async function set5gBands(bands) {
+  const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_set_nrbandlock', params: { nr5g_type: 'SA', nr5g_band: bands.join(',') } }));
+  if (res?.success) { log('5G 频段已设置', 'ok'); showFeedback(true); refreshAll(); }
+  else { log('5G 频段设置失败', 'error'); showFeedback(false); }
+}
+
+// ============================================================
+// CELL LOCK
+// ============================================================
+async function lock5gCell() {
+  const pci = document.getElementById('lock5g-pci').value;
+  const earfcn = document.getElementById('lock5g-arfcn').value;
+  const band = document.getElementById('lock5g-band').value;
+  if (!pci || !earfcn || !band) return log('请填写 PCI、ARFCN、Band', 'error');
+  const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_lock_nr_cell', params: { lock_nr_pci: pci, lock_nr_earfcn: earfcn, lock_nr_cell_band: band } }));
+  if (res?.success) { log('5G 小区已锁定', 'ok'); showFeedback(true); refreshAll(); }
+  else { log('5G 小区锁定失败', 'error'); showFeedback(false); }
+}
+async function lock4gCell() {
+  const pci = document.getElementById('lock4g-pci').value;
+  const earfcn = document.getElementById('lock4g-earfcn').value;
+  if (!pci || !earfcn) return log('请填写 PCI、EARFCN', 'error');
+  const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_lock_lte_cell', params: { lock_lte_pci: pci, lock_lte_earfcn: earfcn } }));
+  if (res?.success) { log('4G 小区已锁定', 'ok'); showFeedback(true); refreshAll(); }
+  else { log('4G 小区锁定失败', 'error'); showFeedback(false); }
+}
+async function unlock5gCellAction() {
+  const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_lock_nr_cell', params: { lock_nr_pci: '0', lock_nr_earfcn: '0', lock_nr_cell_band: '0' } }));
+  if (res?.success) { log('5G 小区已解锁', 'ok'); showFeedback(true); refreshAll(); }
+  else { log('5G 小区解锁失败', 'error'); showFeedback(false); }
+}
+async function unlock4gCellAction() {
+  const res = await runWithRetry(() => callUbus({ service: 'zte_nwinfo_api', method: 'nwinfo_lock_lte_cell', params: { lock_lte_pci: '0', lock_lte_earfcn: '0' } }));
+  if (res?.success) { log('4G 小区已解锁', 'ok'); showFeedback(true); refreshAll(); }
+  else { log('4G 小区解锁失败', 'error'); showFeedback(false); }
+}
+
+// ============================================================
+// THERMAL CONTROL
+// ============================================================
+async function loadThermalStatus() {
+  const res = await runWithRetry(() => callUbus({ service: 'zwrt_bsp.thermal', method: 'get_policy', params: {} }));
+  const on = res?.data?.current_policy && res.data.current_policy != 0;
+  document.getElementById('thermalSwitch').checked = on;
+  document.getElementById('thermalStatus').textContent = on ? '温控已开启 (设备过热时自动降速)' : '温控已关闭 (不限速, 注意散热)';
+}
+async function toggleThermal() {
+  const on = document.getElementById('thermalSwitch').checked;
+  const res = await runWithRetry(() => callUbus({ service: 'zwrt_bsp.thermal', method: 'set_policy', params: { name: 19, action: on ? 1 : 0 } }));
+  if (res?.success) { log('温控已' + (on ? '开启' : '关闭'), 'ok'); showFeedback(true); loadThermalStatus(); }
+  else { log('温控设置失败', 'error'); showFeedback(false); loadThermalStatus(); }
+}
+
+// ============================================================
+// WIFI — inline apply
+// ============================================================
+async function loadWifiSettings() {
+  const res = await runWithRetry(() => callUbus([
+    { service: 'uci', method: 'get', params: { config: 'wireless', section: 'wifi0' } },
+    { service: 'uci', method: 'get', params: { config: 'wireless', section: 'wifi1' } }
+  ]));
+  if (!Array.isArray(res) || res.length < 2) return;
+  const v0 = res[0]?.data?.values || {}, v1 = res[1]?.data?.values || {};
+  document.getElementById('wifi-txpower-24').value = v0.txpowerpercent || '';
+  document.getElementById('wifi-txpower-5').value = v1.txpowerpercent || '';
+  document.getElementById('wifi-country-24').value = v0.country || '';
+  document.getElementById('wifi-country-5').value = v1.country || '';
+  document.getElementById('wifi-maxassoc-24').value = v0.maxassoc || '';
+  document.getElementById('wifi-maxassoc-5').value = v1.maxassoc || '';
+  // Render WiFi detail tables
+  const rows = (vals) => Object.entries(vals).filter(([k])=>!k.startsWith('.')).map(([k,v])=>'<tr><th>'+k+'</th><td>'+(v??'-')+'</td></tr>').join('');
+  document.getElementById('wifi24Table').innerHTML = rows(v0) || '<tr><th colspan="2" style="text-align:center;color:#999">无数据</th></tr>';
+  document.getElementById('wifi5Table').innerHTML = rows(v1) || '<tr><th colspan="2" style="text-align:center;color:#999">无数据</th></tr>';
+}
+async function applyWifiTxPower() {
+  const a = document.getElementById('wifi-txpower-24').value, b = document.getElementById('wifi-txpower-5').value;
+  if (!a && !b) return log('请输入功率值', 'error');
+  const r2 = await runWithRetry(() => callUbus({ service: 'zwrt_wlan', method: 'set', params: { wifi0: { txpowerpercent: a || b }, wifi1: { txpowerpercent: b || a } } }));
+  if (r2?.success) { log('发射功率已应用', 'ok'); showFeedback(true); } else { log('应用失败', 'error'); showFeedback(false); }
+}
+async function applyWifiCountry() {
+  const a = document.getElementById('wifi-country-24').value, b = document.getElementById('wifi-country-5').value;
+  if (!a && !b) return log('请输入国家码', 'error');
+  const r2 = await runWithRetry(() => callUbus({ service: 'zwrt_wlan', method: 'set', params: { wifi0: { country: a || b }, wifi1: { country: b || a } } }));
+  if (r2?.success) { log('国家码已应用', 'ok'); showFeedback(true); } else { log('应用失败', 'error'); showFeedback(false); }
+}
+async function applyWifiMaxClients() {
+  const a = document.getElementById('wifi-maxassoc-24').value, b = document.getElementById('wifi-maxassoc-5').value;
+  if (!a && !b) return log('请输入连接数', 'error');
+  const r2 = await runWithRetry(() => callUbus({ service: 'zwrt_wlan', method: 'set', params: { wifi0: { maxassoc: a || b }, wifi1: { maxassoc: b || a } } }));
+  if (r2?.success) { log('最大连接数已应用', 'ok'); showFeedback(true); } else { log('应用失败', 'error'); showFeedback(false); }
+}
+
+// ============================================================
+// INFO — inline load (no popup)
+// ============================================================
+function infoRows(data) {
+  if (!data) return '';
+  const entries = typeof data === 'object' && !Array.isArray(data) ? Object.entries(data) : [];
+  return entries.filter(([k]) => !k.startsWith('.')).map(([k,v]) => '<tr><th>'+k+'</th><td>'+(v??'-')+'</td></tr>').join('');
+}
+
+async function loadExtraInfo() {
+  // HW/SW
+  const hwRes = await runWithRetry(() => callUbus({ service: 'uci', method: 'get', params: { config: 'zwrt_common_info', section: 'common_config' } }));
+  if (hwRes?.success) {
+    document.getElementById('hwswTable').innerHTML = infoRows(hwRes.data?.values) || '<tr><th colspan="2" style="text-align:center;color:#999">无数据</th></tr>';
+  }
+  // SIM
+  const simRes = await runWithRetry(() => callUbus({ service: 'zwrt_zte_mdm.api', method: 'get_sim_info', params: {} }));
+  if (simRes?.success) {
+    document.getElementById('simTable').innerHTML = infoRows(simRes.data) || '<tr><th colspan="2" style="text-align:center;color:#999">无数据</th></tr>';
+  }
+  // WMS
+  const wmsRes = await runWithRetry(() => callUbus({ service: 'zwrt_wms', method: 'zwrt_wms_get_wms_capacity', params: {} }));
+  if (wmsRes?.success) {
+    document.getElementById('wmsTable').innerHTML = infoRows(wmsRes.data) || '<tr><th colspan="2" style="text-align:center;color:#999">无数据</th></tr>';
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+(async () => {
+  // 1. Try existing session
+  try {
+    const existingSession = sessionStorage.getItem('ct');
+    if (existingSession) {
+      sessionId = existingSession;
+      const res = await callUbus({ service: 'zwrt_web', method: 'web_developer_login_info', params: {} });
+      if (res?.success && res?.data) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('mainPanel').style.display = 'block';
+        setupBandButtons();
+        refreshAll();
+        loadWifiSettings();
+        loadExtraInfo();
+        loadThermalStatus();
+        refreshTimer = setInterval(refreshAll, 5000);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // 2. Try cached password hash for auto-login
+  if (localStorage.getItem('zte_panel_pw_hash')) {
+    const ok = await silentReLogin();
+    if (ok) {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('mainPanel').style.display = 'block';
+      setupBandButtons();
+      refreshAll();
+      loadWifiSettings();
+      loadExtraInfo();
+      loadThermalStatus();
+      refreshTimer = setInterval(refreshAll, 5000);
+      return;
+    }
+  }
+})();
+</script>
+</body>
+</html>
