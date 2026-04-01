@@ -1,11 +1,16 @@
 #!/bin/bash
 # =============================================================
 # U60 Pro SSH 一键安装脚本
-# 使用方式：bash ~/u60-ssh-install.sh [用户名] [密码]
-# 示例：bash ~/u60-ssh-install.sh scoltc 86558781
+# 使用方式（从项目根目录运行）：
+#   bash scripts/ssh/install.sh [用户名] [密码]
+# 示例：bash scripts/ssh/install.sh advanced admin123456
 # =============================================================
 
 set -e
+
+# 切换到脚本所在目录，确保相对路径正确
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 
 SSH_USER="${1:-scoltc}"
 SSH_PASS="${2:-86558781}"
