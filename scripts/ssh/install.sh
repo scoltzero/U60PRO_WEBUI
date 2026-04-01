@@ -50,7 +50,7 @@ success "下载完成"
 # 上传二进制
 info "上传二进制文件到设备..."
 adb push usr/sbin/dropbear /tmp/dropbear2020_tmp
-adb push usr/sbin/dropbearkey /tmp/dropbearkey2020_tmp
+adb push usr/bin/dropbearkey /tmp/dropbearkey2020_tmp
 
 adb shell "
   mkdir -p /overlay/dropbear
