@@ -172,3 +172,4 @@ u60pro/
 ## 致谢
 
 - [ZTE-Script-NG](https://github.com/tpoechtrager/ZTE-Web-Script) by Thomas Pöchtrager — ubus API 的发现与原始脚本，本项目面板的 API 调用即基于此提取重构。
+- [openadb_MU5250](https://github.com/MlgmXyysd/openadb_MU5250) by MlgmXyysd — ADB 调试启用脚本（Python 版），本项目 `zte_u60_adb.py` 即基于此改编。
