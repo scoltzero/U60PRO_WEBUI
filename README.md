@@ -41,6 +41,18 @@ bash master_install.sh [SSH用户名] [SSH密码]
 
 > 脚本会自动串联 ADB 调试 → SSH 部署 → 高级面板安装三步。
 
+**真正的单行命令（无需 clone，直接下载运行）：**
+
+```bash
+# curl 版
+curl -fsSL https://github.com/scoltzero/U60PRO_WEBUI/archive/refs/heads/main.tar.gz | tar xz && cd U60PRO_WEBUI-main && bash master_install.sh advanced admin123456
+
+# wget 版
+wget -qO- https://github.com/scoltzero/U60PRO_WEBUI/archive/refs/heads/main.tar.gz | tar xz && cd U60PRO_WEBUI-main && bash master_install.sh advanced admin123456
+```
+
+> 适用于临时使用或快速体验，正式维护建议 `git clone` 克隆本地。
+
 ### 方式二：分步执行
 
 **步骤 1 — 启用 ADB 调试**
