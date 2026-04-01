@@ -93,8 +93,8 @@ bash scripts/web-panel/install.sh
 u60pro/
 ├── master_install.sh           # 一键安装串联脚本
 ├── README.md                   # 本文件
-├── 高级后台安装教程.md         # 面板详细安装指南
 ├── LICENSE                     # MIT License
+├── .gitignore                  # Git 忽略规则
 ├── scripts/
 │   ├── adb/
 │   │   └── zte_u60_adb.py      # ADB 调试启用脚本
@@ -104,8 +104,9 @@ u60pro/
 │   │   └── addkey.sh           # 公钥添加脚本
 │   └── web-panel/
 │       ├── install.sh          # 面板安装脚本
-│       └── index.html          # 面板本体（单文件）
+│       └── index.html          # 面板本体（单文件，~50KB）
 └── docs/
+    ├── 高级后台安装教程.md         # 面板详细安装指南
     ├── U60-Pro-SSH-安装指南.md     # SSH 快速安装指南
     └── U60-Pro-SSH-详细安装指南.md # SSH 完整技术文档
 ```
